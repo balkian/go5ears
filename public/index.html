@@ -4,6 +4,7 @@
         <script>
             function playSelected(id){
                 $("audio").attr("src","play?id="+id);
+                $("audio").get(0).play();
             }
             function search(term){
                 $.ajax({url:'/search?id='+term,
