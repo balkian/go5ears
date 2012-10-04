@@ -1,0 +1,15 @@
+<html>
+    <head>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>          
+        <script>
+            function playSelected(id){
+                $("audio").attr("src","play?id="+id);
+            }
+        </script>
+    </head>
+<body>
+<p onClick='playSelected("fe7e4f9")'>Libertine</p>
+<p onClick='playSelected("4b9ed95")'>We are the champions</p>
+<audio src="play?id=a78950d" controls="controls"></audio>
+</body>
+</html>
