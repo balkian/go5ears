@@ -8,6 +8,8 @@ var express = require('express')
 , app = module.exports = express();
 
 
+var port = process.env.PORT || 8888;
+
 var parser = new xml2js.Parser();
 
 app.get('/', function(req,res){
@@ -83,4 +85,4 @@ app.get('/play', function(req,resp){
     });
 });
 
-app.listen(8888);
+app.listen(port);
