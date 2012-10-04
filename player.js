@@ -23,13 +23,14 @@ app.get('/goear', function(req,res){
 });
 });
 
-app.get('/nodetube', function(req, resp){
+app.get('/search', function(req, resp){
      var options = {
         host: 'www.goear.com',
         port: 80,
         path: '/search.php?q='+encodeURIComponent(req.query['id'])
     };
 
+    var results = [];
     var html = '';
     http.get(options, function(res) {
         res.on('data', function(data) {
@@ -39,12 +40,13 @@ app.get('/nodetube', function(req, resp){
             // the whole of webpage data has been collected. parsing time!
             $(html).find('.play').each(function(i,elem){
                 var prev = $(elem).prev();
-                var url = prev.attr("href").split("/")[1];
-                var title = prev.text();
-                console.log(title + " - " +url);
-                resp.write("<p>"+title + " - " + url + "</p>");
+                var title = $(prev).children(".song").text();
+                var group = $(prev).children(".group").text();
+                var id = prev.attr("href").split("/")[1];
+                results.push({id:id,"title":title,group:group})
             });
-            resp.end();
+            console.log("Results:"+JSON.stringify(results));
+            resp.send(JSON.stringify(results));
          });
     });
 

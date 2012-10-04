@@ -5,11 +5,40 @@
             function playSelected(id){
                 $("audio").attr("src","play?id="+id);
             }
+            function search(term){
+                $.ajax({url:'/search?id='+term,
+                        dataType: 'json',
+                        success: function(data){
+                            alert("SUCCESS");
+                            for(var i=0; i<data.length;i++){
+                                var title = data[i]["title"];
+                                var group = data[i]["group"];
+                                var id = data[i]["id"];
+                                $("#searchresults").append("<li onClick='playSelected(\""+id+"\")'>"+title+" - "+group+" ["+id+"]</li>");
+                            }
+                        }
+                });
+            };
         </script>
     </head>
 <body>
-<p onClick='playSelected("fe7e4f9")'>Libertine</p>
-<p onClick='playSelected("4b9ed95")'>We are the champions</p>
+<div>
+Go5ears. Because Flash simply sucks!
+</div>
+<div>
 <audio src="play?id=a78950d" controls="controls"></audio>
+<ul>
+<li onClick='playSelected("fe7e4f9")'>Libertine</li>
+<li onClick='playSelected("4b9ed95")'>We are the champions</li>
+</ul>
+</div>
+<div>
+<form method="POST" onsubmit="search(this.goearsearch.value); return false">
+  Search GoEar: <input type="search" name="goearsearch">
+</form>
+<ul id="searchresults">
+
+</ul>
+</div>
 </body>
 </html>
