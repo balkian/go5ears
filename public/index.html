@@ -1,153 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <link rel='stylesheet' media='screen' href="css/main.css" />
-    <link type="text/css" href="css/ui-darkness/jquery-ui-1.8.24.custom.css" rel="stylesheet">
+    <head>
+        <link rel='stylesheet' media='screen' href="css/main.css" />
+        <link type="text/css" href="css/ui-darkness/jquery-ui-1.8.24.custom.css" rel="stylesheet">
+        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>          
+        <script type="text/javascript" src="js/jquery-ui-1.8.24.custom.min.js"></script>
+        <script type='text/javascript' src='js/knockout-2.1.0.js'></script>
+        <script type='text/javascript' src='js/app.js'></script>
 
-    <style>
-    html,body { height: 100%;}
-    * {
-        margin:0;
-    }
-    .sortable { position:relative; list-style-type: none; margin: 0; padding: 0; width: 100%; }
-    .sortable li { margin: 0px 3px 3px 3px; padding: 0.4em; font-size: 1em; height: 18px; }
-    .list-name { padding-left:3em; }
-    .list-controls span {float:left;display:inline;}
-    #wrapper { 
-        position:relative;
-        height: auto !important;
-        min-height: 90%;
-        margin: 0 auto 0;    
-    }
-    #headerPage {
-        position:relative;
-        min-height:10%;
-    }
-    </style>
-
-    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>          
-    <script type="text/javascript" src="js/jquery-ui-1.8.24.custom.min.js"></script>
-    <script>
-        var audio;
-        var playlist;
-        var tracks;
-        var current;
-        
-        function pauseSelected(id,emitter){
-            var newUrl = 'play?id='+id;
-            console.log("Already playing:"+audio.src);
-            audio.pause();
-            $(emitter).addClass('ui-icon ui-icon-play').removeClass('ui-icon-pause');
-            $(emitter).unbind('click');
-            $(emitter).click(function(){
-                playSelected(id,emitter);
-            });
-        }
-        function resumeSelected(id,emitter){
-            console.log("Resuming:"+audio.src);
-            audio.play();
-            $(emitter).addClass('ui-icon ui-icon-pause').removeClass('ui-icon-stop ui-icon-play');
-            $(emitter).unbind('click');
-            $(emitter).click(function(){
-                pauseSelected(id,emitter);
-            });
-        }
-        function playSelected(id,emitter){
-            if(audio.src.indexOf(id)!=-1){
-                resumeSelected(id,emitter);
-            }
-            else{
-                console.log("Not playing:"+audio.src);
-                audio.src = 'play?id='+id;
-                audio.load();
-                $(emitter).removeAttr('onClick');
-                $(".list-controls > span").removeClass('ui-icon-stop ui-icon-pause').addClass('ui-icon-play');
-                resumeSelected(id,emitter);
-            }
-        }
-
-        function search(term){
-            $.ajax({url:'/search?id='+term,
-                    dataType: 'json',
-                    success: function(data){
-                        for(var i=0; i<data.length;i++){
-                            var title = data[i]["title"];
-                            var group = data[i]["group"];
-                            var id = data[i]["id"];
-                            var newLi = toHtml(id,group,title);
-                            $('#searchresults').append(newLi);
-                        }
-                    }
-            });
-        };
-        function addSelected(id,group,title){
-            $('#playlist').append(toHtml(id,group,title));
-        }
-        function toHtml(id,group,title){
-            return '<li class="ui-state-default">'+
-            '        <div class="list-controls">'+
-            '            <span class="ui-icon ui-icon-play" onClick=\'playSelected("'+id+'",this)\'></span>'+
-            '            <span class="ui-icon ui-icon-circle-plus" onClick=\'addSelected("'+id+'","'+group+'","'+title+'")\'></span>'+
-            '            <a href="play?id='+id+'"><span class="ui-icon ui-icon-arrowthickstop-1-s"></span></a>'+
-            '         </div>'+
-            '        <div class="list-name">'+group+' - '+title+'</div>'+
-            '</li>';    
-        }
-
-	$(function() {
-		$( ".sortable" ).sortable();
-		$( ".sortable" ).disableSelection();
-        $( "#accordion" ).accordion({fillSpace:true});
-	});
-
-    $('.accordion .head').click(function() {
-		$(this).next().toggle();
-		return false;
-    }).next().hide();
-
-
-    $(document).ready(function(){
-            audio = $('audio')[0];
-            playlist = $('#playlist');
-
-            tracks = [];
-
-            var champions = { id:"4b9ed95",
-                              title:"We are the champions",
-                              group:"Queen"};
-            var libertine = { id:"fe7e4f9",
-                              title:"Libertine",
-                              group:"Kate Ryan"};
-            addSelected(libertine["id"],libertine["title"],libertine["group"]);
-            addSelected(champions["id"],champions["title"],champions["group"]);
-         });
-        </script>
     </head>
-<body>
-<div id="headerPage">
-    <p>Go5ears. Because Flash simply sucks!</p>
-    <p><audio controls="controls" preload="auto" tabindex="0" type="audio/mpeg">No funciona el tag html5</audio></p>
-</div>
-<div id="wrapper">
-<div id="accordion" class="ui-accordion ui-widget ui-helper-reset ui-accordion-icons">
-    <h3 class="ui-accordion-header ui-helper-reset ui-state-active ui-corner-top" role="tab" aria-expanded="true" aria-selected="true" tabindex="0">
-        <span class="ui-icon ui-icon-triangle-1-s"></span>
-        <a href="#" tabindex="0">Listen</a>
-    </h3>
-    <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active" style="height: 14px; display: block; overflow: auto; padding-top: 11px; padding-bottom: 11px; " role="tabpanel">
-        <ul id="playlist" class="sortable">
-        </ul>
-    </div>    <h3 class="ui-accordion-header ui-helper-reset ui-state-active ui-corner-top" role="tab" aria-expanded="true" aria-selected="true" tabindex="0"><span class="ui-icon ui-icon-triangle-1-s"></span>
-        <a href="#" tabindex="-1">Search</a>
-    </h3>
-    <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active" style="height: 14px; display: block; overflow: auto; padding-top: 11px; padding-bottom: 11px; " role="tabpanel">
-    <form method="POST" onsubmit="search(this.goearsearch.value); return false">
-      Search GoEar: <input type="search" name="goearsearch">
-       </form>
-        <ul id="searchresults" class="sortable">
-        </ul>
-    </div>
-</div>
-</div>
-</body>
+    <body>
+        <div id="headerPage">
+            <p>Go5ears. Because Flash simply sucks!</p>
+            <p><audio controls="controls" preload="auto" tabindex="0" type="audio/mpeg">No funciona el tag html5</audio></p>
+        </div>
+        <div id="wrapper">
+            <div id="accordion" class="ui-accordion ui-widget ui-helper-reset ui-accordion-icons">
+                <h3 class="ui-accordion-header ui-helper-reset ui-state-active ui-corner-top" role="tab" aria-expanded="true" aria-selected="true" tabindex="0">
+                    <span class="ui-icon ui-icon-triangle-1-s"></span>
+                    <a href="#" tabindex="0">Listen</a>
+                </h3>
+                <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active" style="height: 14px; display: block; overflow: auto; padding-top: 11px; padding-bottom: 11px; " role="tabpanel">
+                    <ul id="playlist" class="sortable">
+                    </ul>
+                    </div>    <h3 class="ui-accordion-header ui-helper-reset ui-state-active ui-corner-top" role="tab" aria-expanded="true" aria-selected="true" tabindex="0"><span class="ui-icon ui-icon-triangle-1-s"></span>
+                    <a href="#" tabindex="-1">Search</a>
+                </h3>
+                <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active" style="height: 14px; display: block; overflow: auto; padding-top: 11px; padding-bottom: 11px; " role="tabpanel">
+                    <form method="POST" onsubmit="search(this.goearsearch.value); return false">
+                        Search GoEar: <input type="search" name="goearsearch">
+                    </form>
+                    <ul id="searchresults" class="sortable">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
