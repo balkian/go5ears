@@ -12,16 +12,14 @@ var port = process.env.PORT || 8888;
 
 var parser = new xml2js.Parser();
 
+app.use("/css", express.static(__dirname + '/css'));
+app.use("/", express.static(__dirname + '/public'));
+app.use("/js", express.static(__dirname + '/js'));
+app.use("/skin", express.static(__dirname + '/skin'));
+
 app.get('/', function(req,res){
     res.sendfile("public/index.html");
 }); 
-
-app.get('/goear', function(req,res){
-    jquery.get(req.query['id'],null,function(data, textStatus,jqXHR){
-        res.write("Pidió:"+req.query['id']);
-        res.end();
-});
-});
 
 app.get('/search', function(req, resp){
      var options = {
@@ -43,7 +41,7 @@ app.get('/search', function(req, resp){
                 var title = $(prev).children(".song").text();
                 var group = $(prev).children(".group").text();
                 var id = prev.attr("href").split("/")[1];
-                results.push({id:id,"title":title,group:group})
+                results.push({id:id,title:title,group:group})
             });
             console.log("Results:"+JSON.stringify(results));
             resp.send(JSON.stringify(results));
