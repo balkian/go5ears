@@ -1,9 +1,6 @@
 /**
  * Module dependencies.
  */
-
-process.env.PWD = process.cwd()
-
 var express = require('express')
 , $ = require('jquery')
 , http = require('http')
@@ -15,10 +12,10 @@ var port = process.env.PORT || 8888;
 
 var parser = new xml2js.Parser();
 
-app.use("/css", express.static(process.env.PWD + '/css'));
-app.use("/", express.static(process.env.PWD + '/public'));
-app.use("/js", express.static(process.env.PWD + '/js'));
-app.use("/skin", express.static(process.env.PWD + '/skin'));
+app.use("/css", express.static(__dirname + '/css'));
+app.use("/", express.static(__dirname + '/public'));
+app.use("/js", express.static(__dirname + '/js'));
+app.use("/skin", express.static(__dirname + '/skin'));
 
 app.get('/', function(req,res){
     res.sendfile("public/index.html");
