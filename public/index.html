@@ -6,6 +6,7 @@
         <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>          
         <script type="text/javascript" src="js/jquery-ui-1.8.24.custom.min.js"></script>
         <script type='text/javascript' src='js/knockout-2.1.0.js'></script>
+        <script type='text/javascript' src='https://github.com/downloads/rniemeyer/knockout-sortable/knockout-sortable.js'></script>
         <script type='text/javascript' src='js/app.js'></script>
 
     </head>
@@ -15,23 +16,61 @@
             <p><audio controls="controls" preload="auto" tabindex="0" type="audio/mpeg">No funciona el tag html5</audio></p>
         </div>
         <div id="wrapper">
+            <div id="results">
+                <h3>Playlist</h3>
+                <p><input type="checkbox" data-bind="checked: shuffle" /> Shuffle</p>
+                <p><input type="checkbox" data-bind="checked: repeatAll" /> RepeatAll</p>
+                <p><input type="checkbox" data-bind="checked: repeat" /> RepeatOne</p>
+                <div data-bind="text: trackNumber">:)</div>
+                <div data-bind="text: current">:D</div>
+                <a href="#" data-bind="click: playNext">Next!</a>
+                <ul data-bind="foreach: playlist">
+                    <li data-bind="text: title"></li>
+                </ul>
+            </div>
+
+            
+            
             <div id="accordion" class="ui-accordion ui-widget ui-helper-reset ui-accordion-icons">
                 <h3 class="ui-accordion-header ui-helper-reset ui-state-active ui-corner-top" role="tab" aria-expanded="true" aria-selected="true" tabindex="0">
                     <span class="ui-icon ui-icon-triangle-1-s"></span>
                     <a href="#" tabindex="0">Listen</a>
                 </h3>
                 <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active" style="height: 14px; display: block; overflow: auto; padding-top: 11px; padding-bottom: 11px; " role="tabpanel">
-                    <ul id="playlist" class="sortable">
+                    <ul id="playlist" class="sortable" data-bind="sortable: playlist">
+                        <li class="ui-state-default" data-bind="sortableItem: { item: $data, parentList: playlist }">
+                            <div class="list-controls">
+                                <span class="ui-icon ui-icon-play" data-bind="click: playSong, visible: ! isPlaying()">Play</span>
+                                <span class="ui-icon ui-icon-pause" data-bind="click: pauseSong, visible: isPlaying()">Play</span>
+                                <span class="ui-icon ui-icon-circle-plus" data-bind="click: $root.addSong">Add</span>
+                                <span class="ui-icon ui-icon-arrowthickstop-1-s"></span>
+                            </div>
+                            <div class="list-name" data-bind="text: formattedName()">
+                                Name - Title
+                            </div>
+                        </li>
                     </ul>
                     </div>    <h3 class="ui-accordion-header ui-helper-reset ui-state-active ui-corner-top" role="tab" aria-expanded="true" aria-selected="true" tabindex="0"><span class="ui-icon ui-icon-triangle-1-s"></span>
                     <a href="#" tabindex="-1">Search</a>
                 </h3>
                 <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active" style="height: 14px; display: block; overflow: auto; padding-top: 11px; padding-bottom: 11px; " role="tabpanel">
-                    <form method="POST" onsubmit="search(this.goearsearch.value); return false">
-                        Search GoEar: <input type="search" name="goearsearch">
+                    <form method="POST" action="#" data-bind="submit: getResults">
+                        Search GoEar: <input type="search" name="goearsearch" data-bind="value: queryString">
                     </form>
-                    <ul id="searchresults" class="sortable">
+                    <ul id="searchresults" class="sortable" data-bind="foreach: results">
+                        <li class="ui-state-default">
+                            <div class="list-controls">
+                                <span class="ui-icon ui-icon-play" data-bind="click: playSong, visible: ! isPlaying()">Play</span>
+                                <span class="ui-icon ui-icon-pause" data-bind="click: pauseSong, visible: isPlaying()">Play</span>
+                                <span class="ui-icon ui-icon-circle-plus" data-bind="click: $root.addSong">Add</span>
+                                <span class="ui-icon ui-icon-arrowthickstop-1-s"></span>
+                            </div>
+                            <div class="list-name" data-bind="text: formattedName(), click: playSong">
+                                Name - Title
+                            </div>
+                        </li>
                     </ul>
+
                 </div>
             </div>
         </div>

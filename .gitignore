@@ -1,4 +1,5 @@
 *.swp
+go5ears.vim
 lib-cov
 *.seed
 *.log

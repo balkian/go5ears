@@ -1,93 +1,161 @@
-var audio;
-var playlist;
-var tracks;
-var current;
-
-function pauseSelected(id,emitter){
-    var newUrl = 'play?id='+id;
-    console.log("Already playing:"+audio.src);
-    audio.pause();
-    $(emitter).addClass('ui-icon ui-icon-play').removeClass('ui-icon-pause');
-    $(emitter).unbind('click');
-    $(emitter).click(function(){
-        playSelected(id,emitter);
-    });
-}
-function resumeSelected(id,emitter){
-    console.log("Resuming:"+audio.src);
-    audio.play();
-    $(emitter).addClass('ui-icon ui-icon-pause').removeClass('ui-icon-stop ui-icon-play');
-    $(emitter).unbind('click');
-    $(emitter).click(function(){
-        pauseSelected(id,emitter);
-    });
-}
-function playSelected(id,emitter){
-    if(audio.src.indexOf(id)!=-1){
-        resumeSelected(id,emitter);
-    }
-    else{
-        console.log("Not playing:"+audio.src);
-        audio.src = 'play?id='+id;
-        audio.load();
-        $(emitter).removeAttr('onClick');
-        $(".list-controls > span").removeClass('ui-icon-stop ui-icon-pause').addClass('ui-icon-play');
-        resumeSelected(id,emitter);
-    }
-}
-
-function search(term){
-    $.ajax({url:'/search?id='+term,
-        dataType: 'json',
-    success: function(data){
-        for(var i=0; i<data.length;i++){
-            var title = data[i]["title"];
-            var group = data[i]["group"];
-            var id = data[i]["id"];
-            var newLi = toHtml(id,group,title);
-            $('#searchresults').append(newLi);
-        }
-    }
-    });
-};
-function addSelected(id,group,title){
-    $('#playlist').append(toHtml(id,group,title));
-}
-function toHtml(id,group,title){
-    return '<li class="ui-state-default">'+
-        '        <div class="list-controls">'+
-        '            <span class="ui-icon ui-icon-play" onClick=\'playSelected("'+id+'",this)\'></span>'+
-        '            <span class="ui-icon ui-icon-circle-plus" onClick=\'addSelected("'+id+'","'+group+'","'+title+'")\'></span>'+
-        '            <a href="play?id='+id+'"><span class="ui-icon ui-icon-arrowthickstop-1-s"></span></a>'+
-        '         </div>'+
-        '        <div class="list-name">'+group+' - '+title+'</div>'+
-        '</li>';    
-}
-
-$(function() {
-    $( ".sortable" ).sortable();
-    $( ".sortable" ).disableSelection();
-    $( "#accordion" ).accordion({fillSpace:true});
-});
-
-$('.accordion .head').click(function() {
-    $(this).next().toggle();
-    return false;
-}).next().hide();
-
-
 $(document).ready(function(){
-    audio = $('audio')[0];
-    playlist = $('#playlist');
+    var audio;
+    var tracks;
+    var shuffle = ko.observable(false);
+    var repeat = ko.observable(false);
+    var repeatAll = ko.observable(false);
+    var playlist = ko.observableArray();
 
-    tracks = [];
+    $(function() {
+        $( ".sortable" ).sortable();
+        $( ".sortable" ).disableSelection();
+        $( "#accordion" ).accordion({fillSpace:true});
+    });
+
+    $('.accordion .head').click(function() {
+        $(this).next().toggle();
+        return false;
+    }).next().hide();
 
     var champions = { id:"4b9ed95",
         title:"We are the champions",
     group:"Queen"};
+    
     var libertine = { id:"fe7e4f9",
         title:"Libertine",
     group:"Kate Ryan"};
-    addSelected(libertine["id"],libertine["title"],libertine["group"]);
-    addSelected(champions["id"],champions["title"],champions["group"]);
+
+    var playlist = ko.observableArray(); 
+    function Song(id, group, title) {
+        var self = this;
+        self.id = ko.observable(id);
+        self.group = ko.observable(group);
+        self.title = ko.observable(title);
+        
+        self.isPlaying = ko.observable(false);
+
+        // Computed data
+        self.formattedName = ko.computed(function() {
+            console.log("Recomputed");
+            return playlist().indexOf(self)+"/"+playlist().length+" "+self.group() +" - "+self.title();   
+        }, this);
+        
+        self.playSong = function(){
+            console.log("Playing song");
+            playSelected(self);
+        }  
+        
+        self.pauseSong = function(){
+            console.log("Pausing song");
+            pauseSelected(self);
+        }
+    }
+
+
+    function PlaylistViewModel() {
+        // Data
+        var self = this;
+
+        self.results = ko.observableArray([]);
+        self.queryString = ko.observable();
+        self.shuffle = shuffle;
+        self.current = ko.observable();
+        self.repeat = repeat;
+        self.repeatAll = repeatAll;
+        self.playlist = playlist; 
+
+        self.trackNumber = ko.computed(function(){
+            console.log("Recomputed");
+            return this.playlist.indexOf(this.current())+"/"+this.playlist().length;
+        },this);
+
+        self.addSong = function(song){
+            console.log("Adding song");
+            addSelected(song);
+        }
+        // Operations
+
+        self.getResults = function(form) {
+    //         console.log("Form:"+JSON.stringify(form));
+            $.getJSON("/search?id="+self.queryString(), function(allData) {
+                var results = $.map(allData, function(item) { console.log(JSON.stringify(item)); return new Song(item.id,item.group,item.title) });
+                self.results(results);
+            });
+        }
+
+        self.playNext = playNext;
+
+    }
+
+    playlist.push(new Song(champions.id,champions.group,champions.title));
+    playlist.push(new Song(libertine.id,libertine.group,libertine.title));
+
+    ko.applyBindings(new PlaylistViewModel());
+
+    //Audio control
+
+    audio = $('audio')[0];
+    
+    audio.addEventListener('ended', function(){
+        if(repeatOne){
+            audio.play();
+        }
+        else{
+            playNext();
+        }
+    });
+
+    function playNext(){
+            var now = playlist().indexOf(current);
+            var next = (now+1)%playlist().length;
+
+        console.log("NOW: "+now+", NEXT:"+next);
+        if(shuffle()){
+            var rand=Math.floor(Math.random()*playlist().length);
+            playSelected(playlist()[rand]);
+        }
+        else{
+            if(next>now || repeatAll()){
+                playSelected(playlist()[next]);
+            }else{
+                stop();
+            }
+
+        }
+    };
+
+    function stop(){
+        audio.src = "";
+        audio.load();
+        current.isPlaying(false);
+    }
+
+    function pauseSelected(song){
+        var id = song.id();
+        audio.pause();
+        song.isPlaying(false);
+    }
+
+    function playSelected(song){
+        var id = song.id();
+        if(audio.src.indexOf(id)==-1){
+            audio.src = 'play?id='+id;
+            audio.load();
+        }
+    //     else{
+    //         console.log("Not playing:"+audio.src);
+    //     }
+        audio.play();
+        song.isPlaying(true);
+        current = song;
+    }
+
+    function addSelected(song){
+        playlist.push(new Song(song.id(),song.group(),song.title()));
+    }
+
+
 });
+
+
+
