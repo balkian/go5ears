@@ -17,5 +17,23 @@ html,body {
 #headerPage {
     position:relative;
     min-height:10%;
+    width: 100%;
+}
+#controls {
+    width: 50%;
+    display: inline;
+    margin-left:auto;
+    margin-right: auto;
 }
 
+.list-name{
+    font-size:small;
+}
+#audio {
+    width:100%;
+}
+
+.deletesong{
+    float:right;
+    right:2em;
+}
