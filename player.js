@@ -15,7 +15,7 @@ var parser = new xml2js.Parser();
 app.use("/css", express.static(__dirname + '/css'));
 app.use("/", express.static(__dirname + '/public'));
 app.use("/js", express.static(__dirname + '/js'));
-app.use("/skin", express.static(__dirname + '/skin'));
+app.use("/img", express.static(__dirname + '/img'));
 
 app.get('/', function(req,res){
     res.sendfile("public/index.html");

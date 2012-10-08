@@ -1,5 +1,10 @@
 html,body {
     height: 100%;
+    background-color: #111;
+    color: #666;
+    background-position: top;
+    background-image:url("../img/chem.png");
+    background-repeat: repeat-x;
 }
 * {
     margin:0;
@@ -11,19 +16,25 @@ html,body {
 #wrapper { 
     position:relative;
     height: auto !important;
-    min-height: 90%;
+    min-height: 85%;
     margin: 0 auto 0;    
 }
 #headerPage {
     position:relative;
-    min-height:10%;
+    min-height:15%;
     width: 100%;
 }
-#controls {
+.controls ul li {
     width: 50%;
     display: inline;
     margin-left:auto;
     margin-right: auto;
+}
+.controls ul{
+margin: 0;
+padding: 0;
+list-style-type: none;
+text-align: center;
 }
 
 .list-name{
@@ -36,4 +47,29 @@ html,body {
 .deletesong{
     float:right;
     right:2em;
+}
+.control-button{
+    width:2em;
+}
+.ui-accordion {
+    font-size:small;
+}
+
+#spider {
+    position:absolute;
+    height:10%;
+    vertical-align: bottom;
+    text-align: center;
+    color: #FE0;
+}
+
+#spiderlogo{
+    height:60px;
+}
+
+#skull {
+    position:absolute;
+    right:0px;
+    height:10%;
+
 }

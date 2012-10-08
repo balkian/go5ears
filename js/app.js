@@ -1,10 +1,10 @@
 $(document).ready(function(){
     var audio;
     var tracks;
-    var shuffle = ko.observable(false);
-    var repeat = ko.observable(false);
+    var shuffle = ko.observable();
+    var repeat = ko.observable();
     var current = ko.observable();
-    var repeatAll = ko.observable(false);
+    var repeatAll = ko.observable();
     var playlist = ko.observableArray();
     var playHistory = [];
 
@@ -19,7 +19,38 @@ $(document).ready(function(){
         }
         console.log(JSON.stringify(cleanList));
         localStorage.playlist = JSON.stringify(cleanList);
-        console.log("prueba");
+        localStorage.shuffle = shuffle() == true;
+        localStorage.repeat = repeat() == true;
+        localStorage.repeatAll = repeatAll() == true;
+        console.log("REPEATALL:"+localStorage.repeatAll);
+    }
+
+    function loadState(){
+        if (localStorage.playlist) {
+            console.log("State recovered. Happy listening!");
+            var pl = JSON.parse(localStorage.playlist);
+            for (var i = 0; i < pl.length; i++){
+                var obj = new Song(pl[i].id,pl[i].group,pl[i].title);
+                playlist.push(obj);
+            }
+
+        }
+        if(playlist().length < 2){
+            console.log("No playlist found. Adding recommendation!");
+            var champions = { id:"4b9ed95",
+                title:"We are the champions",
+                group:"Queen"};
+
+            var libertine = { id:"fe7e4f9",
+                title:"Libertine",
+                group:"Kate Ryan"};
+            playlist.push(new Song(champions.id,champions.group,champions.title));
+            playlist.push(new Song(libertine.id,libertine.group,libertine.title));
+        }
+
+        shuffle(localStorage.shuffle == 'true');
+        repeat(localStorage.repeat == 'true');
+        repeatAll(localStorage.repeatAll == 'true');
     }
     //Audio control
 
@@ -38,9 +69,9 @@ $(document).ready(function(){
 
     function playNext(){
         var now = playlist().indexOf(current());
-
+        var len = playlist().length;
         if(shuffle()){
-            var rand=Math.floor(Math.random()*playlist().length);
+            var rand=(now+Math.floor(Math.random()*(len)+1))%len;
             console.log("NOW: "+now+", NEXT:"+rand);
             playSong(playlist()[rand]);
         }
@@ -68,20 +99,27 @@ $(document).ready(function(){
         current().isPlaying(false);
     }
 
+    function resume(){
+        audio.play();
+        current().isPlaying(true);
+    }
+
     function playSong(song){
         var id = song.id();
+        console.log("Going to play "+song.title());
         if(typeof current() != 'undefined'){
             current().isPlaying(false);
         }
-        if(audio.src.indexOf(id)==-1){
-            audio.src = 'play?id='+id;
-            audio.load();
-            current(song)
-                if (playlist().indexOf(song)>=0) {
-                    playHistory.push(current());
-                    console.log("Not adding to playlist");
-                }        
-        }
+        //if(audio.src.indexOf(id)==-1){ // Check if already playing. Buggy when there are duplicates
+        audio.src = 'play?id='+id;
+        audio.load();
+        current(song)
+            if (playlist().indexOf(song)>=0) {
+                playHistory.push(current());
+            }else{
+                console.log("Not adding to playlist>"+playlist().indexOf(song));
+            }
+        //}
         audio.play();
         current().isPlaying(true);
     }
@@ -100,9 +138,6 @@ $(document).ready(function(){
     function addSelected(song){
         playlist.push(new Song(song.id(),song.group(),song.title()));
         saveState();
-        console.log("prueba");
-        console.log(localStorage.playlist);
-        console.log(playlist());
     }
 
     function removeSong(song) {
@@ -110,6 +145,7 @@ $(document).ready(function(){
             playNext();
         }
         playlist.remove(song);
+        saveState();
     }
 
 
@@ -158,6 +194,10 @@ $(document).ready(function(){
             return this.playlist.indexOf(this.current())+"/"+this.playlist().length;
         },this);
 
+        self.isPlaying = ko.computed(function(){
+            return (typeof current() != 'undefined') && current().isPlaying();
+        },this);
+
         self.addSong = function(song){
             console.log("Adding song");
             addSelected(song);
@@ -169,46 +209,30 @@ $(document).ready(function(){
                 var results = $.map(allData, function(item) { console.log(JSON.stringify(item)); return new Song(item.id,item.group,item.title) });
                 self.results(results);
             });
+
         }
+        
+        if(typeof(LocalStorage)!=="undefined"){
+            alert("Bad luck!");
+
+        }else{
+            loadState();
+
+            $(window).unload(function(){
+                saveState();
+            });
+        }
+
 
         self.playNext = playNext;
         self.playPrevious = playPrevious;
+        self.resume = resume;
         self.playSong = playSong;
-        self.pauseSong = pause;
+        self.pause = pause;
+        self.stop = stop;
         self.removeSong = removeSong;
     }
 
-
-    if(typeof(LocalStorage)!=="undefined"){
-        alert("Bad luck!");
-
-    }else{
-        if (localStorage.playlist) {
-            console.log("State recovered. Happy listening!");
-            var pl = JSON.parse(localStorage.playlist);
-            for (var i = 0; i < pl.length; i++){
-                var obj = new Song(pl[i].id,pl[i].group,pl[i].title);
-                playlist.push(obj);
-            }
-
-        }
-        if(playlist().length < 2){
-            console.log("No playlist found. Adding recommendation!");
-            var champions = { id:"4b9ed95",
-                title:"We are the champions",
-                group:"Queen"};
-
-            var libertine = { id:"fe7e4f9",
-                title:"Libertine",
-                group:"Kate Ryan"};
-            playlist.push(new Song(champions.id,champions.group,champions.title));
-            playlist.push(new Song(libertine.id,libertine.group,libertine.title));
-        }
-
-        $(window).unload(function(){
-            saveState();
-        });
-    }
 
     ko.applyBindings(new PlaylistViewModel());
 

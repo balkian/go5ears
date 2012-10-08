@@ -11,19 +11,23 @@
 
     </head>
     <body>
+        <div id="spider"><div><img id="spiderlogo" src="img/spider.png"/></div>BETA</div>
+        <img src="img/skull.png" id="skull"/>
         <div id="headerPage">
-             <div id="controls">
-                <input type="checkbox" data-bind="checked: shuffle" /> Shuffle
-                <input type="checkbox" data-bind="checked: repeatAll" /> RepeatAll
-                <input type="checkbox" data-bind="checked: repeat" /> RepeatOne
-     <!--           <ul data-bind="foreach: playlist">
-                    <li data-bind="text: title"></li>
-                </ul>-->
-            </div>
                 <audio id="audio" controls="controls" preload="auto" tabindex="0" type="audio/mpeg">No funciona el tag html5</audio>
-                <div>
-                    <a href="#" data-bind="click: playPrevious">Prev!</a>
-                    <a href="#" data-bind="click: playNext">Next!</a>
+                <div class="controls">
+                    <ul>
+                        <li data-bind="click: playPrevious"><img class="control-button" src="img/left.png"></li>
+                        <li data-bind="click: stop"><img class="control-button" src="img/stop.png"></li>
+                        <li data-bind="click: resume, visible: (! isPlaying())"><img class="control-button" src="img/play.png"></li>
+                        <li data-bind="click: pause,visible: isPlaying"><img class="control-button" src="img/pause.png"></li>
+                        <li data-bind="click: playNext"><img class="control-button" src="img/right.png"></li>
+                    </ul>
+                    <ul>
+                        <li><input type="checkbox" data-bind="checked: shuffle" /> Shuffle</li>
+                        <li><input type="checkbox" data-bind="checked: repeatAll" /> RepeatAll</li>
+                        <li><input type="checkbox" data-bind="checked: repeat" /> RepeatOne</li>
+                    </ul>
                 </div>
         </div>
         
