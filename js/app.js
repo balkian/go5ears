@@ -9,12 +9,53 @@ $(document).ready(function(){
     var playHistory = [];
 
     
+    
+    function clearPlaylist(){
+        playlist.removeAll();
+    }
+
+    function savePlaylist(){
+        saveState();
+        uriContent = "data:application/json," + encodeURIComponent(localStorage.playlist);
+        window.open(uriContent,"PlayList.json");
+    }
+
+
+    function loadPlaylist(evt){
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            // Great success! All the File APIs are supported.
+            var file = evt.target.files[0]; // FileList object
+            console.log(evt.target.files);
+            // files is a FileList of File objects. List some properties.
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var content = event.target.result;
+                console.log("Content:"+content);
+                if (typeof content != 'undefined'){
+                    localStorage.playlist = content;
+                    loadState();
+                }
+            }
+            reader.readAsText(file);
+
+        } else {
+            //   alert('The File APIs are not fully supported in this browser.');
+        }
+    }
+
+
+    $("#clearPlaylist").click(clearPlaylist);
+    $("#savePlaylist").click(savePlaylist);
+    $("#file").change(loadPlaylist);
+    $('#fileSelector').click(function(){
+        $('#file').click();
+    });
 
     function saveState(){
         var cleanList = [];
         var pl = playlist();
         for (var i = 0; i < pl.length; i += 1) {
-            var obj = {id: pl[i].id(), group: pl[i].group(),title: pl[i].title()};
+            var obj = {id: pl[i].id(), group: pl[i].group(),title: pl[i].title(), quality:pl[i].quality()};
             cleanList.push(obj);
         }
         console.log(JSON.stringify(cleanList));
@@ -27,25 +68,26 @@ $(document).ready(function(){
 
     function loadState(){
         if (localStorage.playlist) {
+            playlist.removeAll();
             console.log("State recovered. Happy listening!");
             var pl = JSON.parse(localStorage.playlist);
             for (var i = 0; i < pl.length; i++){
-                var obj = new Song(pl[i].id,pl[i].group,pl[i].title);
+                var obj = new Song(pl[i].id,pl[i].group,pl[i].title,pl[i].quality);
                 playlist.push(obj);
             }
 
         }
-        if(playlist().length < 2){
+        if(playlist().length < 1){
             console.log("No playlist found. Adding recommendation!");
             var champions = { id:"4b9ed95",
                 title:"We are the champions",
                 group:"Queen"};
 
-            var libertine = { id:"fe7e4f9",
-                title:"Libertine",
-                group:"Kate Ryan"};
-            playlist.push(new Song(champions.id,champions.group,champions.title));
-            playlist.push(new Song(libertine.id,libertine.group,libertine.title));
+//             var libertine = { id:"fe7e4f9",
+//                 title:"Libertine",
+//                 group:"Kate Ryan"};
+            playlist.push(new Song(champions.id,champions.group,champions.title,'Example Song'));
+//             playlist.push(new Song(libertine.id,libertine.group,libertine.title));
         }
 
         shuffle(localStorage.shuffle == 'true');
@@ -136,7 +178,7 @@ $(document).ready(function(){
     }
 
     function addSelected(song){
-        playlist.push(new Song(song.id(),song.group(),song.title()));
+        playlist.push(new Song(song.id(),song.group(),song.title(),song.quality()));
         saveState();
     }
 
@@ -160,19 +202,19 @@ $(document).ready(function(){
         return false;
     }).next().hide();
 
-    function Song(id, group, title) {
+    function Song(id, group, title, quality) {
         var self = this;
         self.id = ko.observable(id);
         self.group = ko.observable(group);
         self.title = ko.observable(title);
-
+        self.quality = ko.observable(quality);
         self.isPlaying = ko.observable(false);
 
         // Computed data
         self.formattedName = ko.computed(function() {
             var index = playlist().indexOf(self);
             index = index>=0?index+"/"+playlist().length+" ":"";
-            return index+self.group() +" - "+self.title();   
+            return index+self.group() +" - "+self.title()+" ["+self.quality()+"]";   
         }, this);
 
     }
@@ -206,7 +248,7 @@ $(document).ready(function(){
 
         self.getResults = function(form) {
             $.getJSON(encodeURI('/search?id="'+self.queryString()+'"'), function(allData) {
-                var results = $.map(allData, function(item) { console.log(JSON.stringify(item)); return new Song(item.id,item.group,item.title) });
+                var results = $.map(allData, function(item) { console.log(JSON.stringify(item)); return new Song(item.id,item.group,item.title,item.quality) });
                 self.results(results);
             });
 

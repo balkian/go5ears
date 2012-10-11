@@ -40,14 +40,10 @@ app.get('/search', function(req, resp){
                 var prev = $(elem).prevAll('a');
                 var title = $(prev).children('.song').text();
                 var quality = $(elem).next("p").text().split("|")[0].trim();
-                title+=" ["+quality+"]";
-                if($(elem).prev().is("img")){
-                    title+=" HD!";
-                }
                 var group = $(prev).children('.group').text();
                 var id = prev.attr('href').split('/')[1];
                 if(typeof title != 'undefined' && typeof group != 'undefined' ){
-                    results.push({id:id,title:title,group:group})
+                    results.push({id:id,title:title,group:group,quality:quality})
                 }
             });
             console.log("Results:"+JSON.stringify(results));

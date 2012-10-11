@@ -8,7 +8,7 @@
         <script type='text/javascript' src='js/knockout-2.1.0.js'></script>
         <script type='text/javascript' src='https://github.com/downloads/rniemeyer/knockout-sortable/knockout-sortable.js'></script>
         <script type='text/javascript' src='js/app.js'></script>
-
+        <title>Go5Ears, listen in html5!</title> 
     </head>
     <body>
         <div id="spider"><div><img id="spiderlogo" src="img/spider.png"/></div>BETA</div>
@@ -27,6 +27,11 @@
                         <li><input type="checkbox" data-bind="checked: shuffle" /> Shuffle</li>
                         <li><input type="checkbox" data-bind="checked: repeatAll" /> RepeatAll</li>
                         <li><input type="checkbox" data-bind="checked: repeat" /> RepeatOne</li>
+                    </ul>
+                    <ul>
+                        <li><button id="clearPlaylist">Clear!</button></li>
+                        <li><button id="savePlaylist">Save</button></li>
+                        <li><input class="hidden" type="file" id="file" name="file"/><button id="fileSelector">Load</button></li>
                     </ul>
                 </div>
         </div>
