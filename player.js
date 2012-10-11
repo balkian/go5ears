@@ -36,12 +36,19 @@ app.get('/search', function(req, resp){
             html += data;
         }).on('end', function() {
             // the whole of webpage data has been collected. parsing time!
-            $(html).find('.play').each(function(i,elem){
-                var prev = $(elem).prev();
-                var title = $(prev).children(".song").text();
-                var group = $(prev).children(".group").text();
-                var id = prev.attr("href").split("/")[1];
-                results.push({id:id,title:title,group:group})
+            $(html).find('a.play').each(function(i,elem){
+                var prev = $(elem).prevAll('a');
+                var title = $(prev).children('.song').text();
+                var quality = $(elem).next("p").text().split("|")[0].trim();
+                title+=" ["+quality+"]";
+                if($(elem).prev().is("img")){
+                    title+=" HD!";
+                }
+                var group = $(prev).children('.group').text();
+                var id = prev.attr('href').split('/')[1];
+                if(typeof title != 'undefined' && typeof group != 'undefined' ){
+                    results.push({id:id,title:title,group:group})
+                }
             });
             console.log("Results:"+JSON.stringify(results));
             resp.send(JSON.stringify(results));
