@@ -217,6 +217,9 @@ $(document).ready(function(){
             return index+self.group() +" - "+self.title()+" ["+self.quality()+"]";   
         }, this);
 
+        self.downloadSong = function(){
+            window.open("/play?id="+self.id(), self.formattedName());
+        }
     }
 
 

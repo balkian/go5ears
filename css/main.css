@@ -75,3 +75,7 @@ text-align: center;
 .hidden{
     display:none;
 }
+
+.list-controls span {
+    cursor:pointer;
+}
