@@ -228,6 +228,8 @@ $(document).ready(function(){
         var self = this;
 
         self.results = ko.observableArray([]);
+        self.hasMoreSearch = ko.observable(true);
+        self.currentPage = ko.observable(0);
         self.queryString = ko.observable();
         self.shuffle = shuffle;
         self.current = current;
@@ -249,14 +251,38 @@ $(document).ready(function(){
         }
         // Operations
 
-        self.getResults = function(form) {
-            $.getJSON(encodeURI('/search?id="'+self.queryString()+'"'), function(allData) {
+        self.search = function(page) {
+            $.getJSON(encodeURI('/search?id='+self.queryString()+'&p='+page), function(allData) {
                 var results = $.map(allData, function(item) { console.log(JSON.stringify(item)); return new Song(item.id,item.group,item.title,item.quality) });
-                self.results(results);
+                console.log("Results:");
+                console.log(results);
+                if(results.length < 10){
+                    console.log("No more results");
+                    self.hasMoreSearch(false);
+                }else{
+                    self.hasMoreSearch(true);   
+                }
+                if(results.length > 0){
+                    for (var i = 0; i < results.length; i += 1) {
+                        self.results.push(results[i])
+                    }    
+                    self.currentPage(page);
+                }
             });
 
+        }        
+        
+        self.getResults = function() {
+            self.results.removeAll();
+            self.search(1);
         }
         
+        self.searchMore = function(){
+            if(self.hasMoreSearch()){
+                self.search(self.currentPage()+1);
+            }
+        }
+
         if(typeof(LocalStorage)!=="undefined"){
             alert("Bad luck!");
 

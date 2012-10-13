@@ -25,8 +25,10 @@ app.get('/search', function(req, resp){
      var options = {
         host: 'www.goear.com',
         port: 80,
-        path: '/search.php?q='+encodeURIComponent(req.query['id'])
+        path: '/search/'+encodeURIComponent(req.query['id'].replace(/\s/g , "-"))+'/'+encodeURIComponent(req.query['p'])
     };
+    console.log("Query:"+req.query['id']);
+    console.log("Querying:"+options.path);
 
     var results = [];
     var html = '';
