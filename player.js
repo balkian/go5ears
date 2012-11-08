@@ -74,16 +74,18 @@ app.get('/play', function(req,resp){
             parser.parseString(xml, function(err,result){
                 console.log("xml: "+xml);
                 console.log("Object: "+JSON.stringify(result));
-                var song = result['songs']['song'][0]["$"];
-                console.log("Song:"+JSON.stringify(song)); 
-                var path = song['path'];
-                var title = song['title'];
-                var artist = song['artist'];
-                console.log(title + " - " +artist+" - "+path);
-                resp.writeHead(302, {
-                  'Location': path
-                  //add other headers here...
-                });
+                try{
+                    var song = result['songs']['song'][0]["$"];
+                    console.log("Song:"+JSON.stringify(song)); 
+                    var path = song['path'];
+                    var title = song['title'];
+                    var artist = song['artist'];
+                    console.log(title + " - " +artist+" - "+path);
+                    resp.writeHead(302, {
+                      'Location': path
+                      //add other headers here...
+                    });
+                }
                 resp.end();
             });
         });
