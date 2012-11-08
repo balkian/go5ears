@@ -86,6 +86,9 @@ app.get('/play', function(req,resp){
                       //add other headers here...
                     });
                 }
+                catch(exception){
+                    console.log(exception);
+                }
                 resp.end();
             });
         });
