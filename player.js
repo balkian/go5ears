@@ -42,9 +42,9 @@ app.get('/search', function(req, resp){
             $(resultsol).find('li').each(function(i,elem){
                 var a=$(elem).find('a');
                 var id=a.attr('href').split('/')[1];
-                var title = a.find('span.songtitleinfo').html();
-                var group = a.find('span.groupnameinfo').html();
-                var quality = $(elem).find('p.comment').html().split('|')[0];
+                var title = a.find('span.songtitleinfo').text();
+                var group = a.find('span.groupnameinfo').text();
+                var quality = $(elem).find('p.comment').text().split('|')[0];
                 if(typeof title != 'undefined' && typeof group != 'undefined' ){
                     results.push({id:id,title:title,group:group,quality:quality})
                 }
