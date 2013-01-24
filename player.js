@@ -38,21 +38,21 @@ app.get('/search', function(req, resp){
             html += data;
         }).on('end', function() {
             // the whole of webpage data has been collected. parsing time!
-            $(html).find('a.play').each(function(i,elem){
-                var prev = $(elem).prevAll('a');
-                var title = $(prev).children('.song').text();
-                var quality = $(elem).next("p").text().split("|")[0].trim();
-                var group = $(prev).children('.group').text();
-                var id = prev.attr('href').split('/')[1];
+            resultsol = $(html).find('ol#results');
+            $(resultsol).find('li').each(function(i,elem){
+                var a=$(elem).find('a');
+                var id=a.attr('href').split('/')[1];
+                var title = a.find('span.songtitleinfo').html();
+                var group = a.find('span.groupnameinfo').html();
+                var quality = $(elem).find('p.comment').html().split('|')[0];
                 if(typeof title != 'undefined' && typeof group != 'undefined' ){
                     results.push({id:id,title:title,group:group,quality:quality})
                 }
             });
             console.log("Results:"+JSON.stringify(results));
             resp.send(JSON.stringify(results));
-         });
+        });
     });
-
 });
 
 app.get('/play', function(req,resp){

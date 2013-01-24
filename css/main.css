@@ -16,7 +16,7 @@ html,body {
 #wrapper { 
     position:relative;
     height: auto !important;
-    min-height: 80%;
+    min-height:80%;
     margin: 0 auto 0;    
 }
 #headerPage {

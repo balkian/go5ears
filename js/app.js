@@ -194,13 +194,18 @@ $(document).ready(function(){
     $(function() {
         $( ".sortable" ).sortable();
         $( ".sortable" ).disableSelection();
-        $( "#accordion" ).accordion({fillSpace:true});
+        $( "#accordion" ).accordion({heightStyle: "fill"});
+
+        $(window).resize(function(){
+                $("#accordion").accordion("refresh");
+        });
     });
 
     $('.accordion .head').click(function() {
         $(this).next().toggle();
         return false;
     }).next().hide();
+    
 
     function Song(id, group, title, quality) {
         var self = this;
