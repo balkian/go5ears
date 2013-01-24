@@ -71,6 +71,7 @@ app.get('/play', function(req,resp){
             xml += data;
         }).on('end', function() {
             // the whole of webpage data has been collected. parsing time!
+            xml = xml.replace('&','');
             parser.parseString(xml, function(err,result){
                 console.log("xml: "+xml);
                 console.log("Object: "+JSON.stringify(result));
