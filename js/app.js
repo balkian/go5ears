@@ -16,8 +16,10 @@ $(document).ready(function(){
 
     function savePlaylist(){
         saveState();
-        uriContent = "data:application/json," + encodeURIComponent(localStorage.playlist);
-        window.open(uriContent,"PlayList.json");
+//         uriContent = "data:application/json," + encodeURIComponent(localStorage.playlist);
+//         window.open(uriContent,"PlayList.json");
+        var blob = new Blob([localStorage.playlist],{type:"text/json;charset=utf-8"});
+        saveAs(blob, "playlist.json");
     }
 
 
@@ -225,6 +227,12 @@ $(document).ready(function(){
         self.downloadSong = function(){
             window.open("/play?id="+self.id(), self.formattedName());
         }
+        self.downloadURL = ko.computed(function(){
+            return "/play?id="+self.id();  
+        });
+        self.downloadName = ko.computed(function(){
+            return self.group()+" - "+self.title()+".mp3";
+        });
     }
 
 
