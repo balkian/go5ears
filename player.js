@@ -5,7 +5,8 @@ var express = require('express')
 , $ = require('jquery')
 , http = require('http')
 , xml2js = require('xml2js')
-, app = module.exports = express();
+, app = module.exports = express()
+, api = require('goear_api');
 
 
 var port = process.env.PORT || 8888;
@@ -22,77 +23,33 @@ app.get('/', function(req,res){
 }); 
 
 app.get('/search', function(req, resp){
-     var options = {
-        host: 'www.goear.com',
-        port: 80,
-        path: '/search/'+encodeURIComponent(req.query['id'].replace(/\s/g , "-"))+'/'+encodeURIComponent(req.query['p'])
-    };
+    var query = req.query['id']
+    var page = req.query['p']
     console.log("Query:"+req.query['id']);
-    console.log("Querying:"+options.path);
+    console.log("Page:"+page);
 
-    var results = [];
-    var html = '';
-    http.get(options, function(res) {
-        res.on('data', function(data) {
-            // collect the data chunks to the variable named "html"
-            html += data;
-        }).on('end', function() {
-            // the whole of webpage data has been collected. parsing time!
-            resultsol = $(html).find('ol#results');
-            $(resultsol).find('li').each(function(i,elem){
-                var a=$(elem).find('a');
-                var id=a.attr('href').split('/')[1];
-                var title = a.find('span.songtitleinfo').text();
-                var group = a.find('span.groupnameinfo').text();
-                var quality = $(elem).find('p.comment').text().split('|')[0];
-                if(typeof title != 'undefined' && typeof group != 'undefined' ){
-                    results.push({id:id,title:title,group:group,quality:quality})
-                }
-            });
-            console.log("Results:"+JSON.stringify(results));
-            resp.send(JSON.stringify(results));
-        });
+    api.search(query, { offset: page }, function(err, data) {
+        var results = [];
+        for( var i in data.tracks){
+            res = data.tracks[i];
+            results.push({id:res.id,title:res.title,group:res.artist,quality:res.quality})
+        }
+        console.log("Total songs available: " + data.totalCount);
+        console.log("First title available: " + data.tracks[0].title);
+        console.log("Results:"+JSON.stringify(results));
+        resp.send(JSON.stringify(results));
     });
 });
 
 app.get('/play', function(req,resp){
     var id = req.query['id'];
-    
-    var options = {
-        host: 'www.goear.com',
-        port: 80,
-        path: '/tracker758.php?f='+encodeURIComponent(req.query['id'])
-    };
-
-    var xml = '';
-    http.get(options, function(res) {
-        res.setEncoding('utf8');
-        res.on('data', function(data) {
-            xml += data;
-        }).on('end', function() {
-            // the whole of webpage data has been collected. parsing time!
-            xml = xml.replace('&','');
-            parser.parseString(xml, function(err,result){
-                console.log("xml: "+xml);
-                console.log("Object: "+JSON.stringify(result));
-                try{
-                    var song = result['songs']['song'][0]["$"];
-                    console.log("Song:"+JSON.stringify(song)); 
-                    var path = song['path'];
-                    var title = song['title'];
-                    var artist = song['artist'];
-                    console.log(title + " - " +artist+" - "+path);
-                    resp.writeHead(302, {
-                      'Location': path
-                      //add other headers here...
-                    });
-                }
-                catch(exception){
-                    console.log(exception);
-                }
-                resp.end();
-            });
+    api.lookup(id, function(err, data){
+        console.log('Lookup:', data);
+        resp.writeHead(302, {
+          'Location': data.link
+          //add other headers here...
         });
+        resp.end();
     });
 });
 

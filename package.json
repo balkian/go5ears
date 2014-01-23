@@ -1,12 +1,13 @@
 {
   "name": "5ears",
   "description": "Play goear songs in html5",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "dependencies": {
     "express": "*",
     "jquery": "*",
-    "xml2js": "*"
+    "xml2js": "*",
+    "goear_api": "*"
   },
   "engines": {
     "node": "0.8.x",
